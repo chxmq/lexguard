@@ -38,12 +38,5 @@ jobs:
 
       - name: Production server smoke
         env:
-          NODE_ENV: production
-          LEXGUARD_DEMO_MODE: 'true'
-          LEXGUARD_MEMORY_STORE: 'true'
-          PORT: '8080'
-        run: |
-          timeout 12 node src/server/index.js &
-          sleep 2
-          curl -sf http://127.0.0.1:8080/api/health | grep -q '"status":"ok"'
-          curl -sf http://127.0.0.1:8080/api/health | grep -q '"demoMode":true'
+          PORT: '19080'
+        run: node scripts/ci-smoke.js

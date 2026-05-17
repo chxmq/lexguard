@@ -23,6 +23,7 @@
     "check-vertex": "node scripts/check-vertex-quota.js",
     "setup-gcp": "bash scripts/setup-gcp.sh",
     "smoke": "node scripts/smoke-test.js",
+    "smoke:ci": "node scripts/ci-smoke.js",
     "e2e": "node scripts/e2e-analyze.js",
     "eval:extract": "node scripts/eval-benchmarks.js --extract-only",
     "eval": "node scripts/eval-benchmarks.js",
