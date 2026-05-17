@@ -10,14 +10,18 @@ let storage = null;
 let bucket = null;
 let firestore = null;
 
+function useMemoryStore() {
+  return process.env.LEXGUARD_MEMORY_STORE === 'true';
+}
+
 function initGCS() {
-  if (!process.env.GCS_BUCKET || !process.env.GOOGLE_CLOUD_PROJECT) return;
+  if (useMemoryStore() || !process.env.GCS_BUCKET || !process.env.GOOGLE_CLOUD_PROJECT) return;
   storage = new Storage();
   bucket = storage.bucket(process.env.GCS_BUCKET);
 }
 
 function initFirestore() {
-  if (!process.env.GOOGLE_CLOUD_PROJECT) return;
+  if (useMemoryStore() || !process.env.GOOGLE_CLOUD_PROJECT) return;
   firestore = new Firestore();
 }
 
@@ -42,7 +46,8 @@ export async function saveSession(sessionId, data) {
     const collection = process.env.FIRESTORE_COLLECTION || 'sessions';
     await firestore.collection(collection).doc(sessionId).set(payload, { merge: true });
   } else {
-    inMemorySessions.set(sessionId, payload);
+    const existing = inMemorySessions.get(sessionId);
+    inMemorySessions.set(sessionId, existing ? { ...existing, ...payload } : payload);
   }
 
   return payload;

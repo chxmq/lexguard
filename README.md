@@ -1,129 +1,82 @@
 # LexGuard
 
-**AI contract intelligence** — a context-aware legal assistant that helps people understand what they sign *before* they sign it.
+**AI contract intelligence** — understand what you sign *before* you sign it.
 
-> **Hack2Skill / Google Antigravity submission** — public repo, single branch (`main`), source-only (&lt; 10 MB without `node_modules`).
+[![CI](https://github.com/chxmq/lexguard/actions/workflows/ci.yml/badge.svg)](https://github.com/chxmq/lexguard/actions/workflows/ci.yml)
+[![Live demo](https://img.shields.io/badge/demo-Cloud%20Run-4285F4?style=flat-square&logo=googlecloud)](https://lexguard-api-319474876307.asia-northeast1.run.app)
+[![Node](https://img.shields.io/badge/node-%3E%3D20-339933?style=flat-square&logo=node.js)](package.json)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
+
+| | |
+|---|---|
+| **Live app** | https://lexguard-api-319474876307.asia-northeast1.run.app |
+| **Repository** | https://github.com/chxmq/lexguard |
+| **Stack** | React · Express · Vertex AI Gemini 2.5 · Firestore · GCS |
+
+LexGuard analyzes employment, SaaS, NDA, privacy, and vendor agreements from the **signing party’s perspective**: extract clauses, score risk, compare to market benchmarks, detect cross-clause contradictions, and suggest redlines — with plain-language explanations.
+
+> **Not legal advice.** Decision-support only. See in-app disclaimer.
 
 ---
 
-## Hack2Skill submission summary
+## Why LexGuard
 
-### Chosen vertical
+| Problem | LexGuard response |
+|---------|-------------------|
+| Contracts are unreadable | Plain-language implications + worst-case scenarios per clause |
+| Hidden one-sided terms | Severity scoring, benchmark deviation, exploitative-pattern detection |
+| Contradictions across sections | Cross-clause heuristics (+ optional Vertex merge) |
+| Generic AI summaries | Structured JSON: classify → explain → compare → negotiate |
 
-**Legal & contract risk assistant** (smart dynamic assistant for individuals reviewing agreements)
+**Hack2Skill / Google Antigravity** — legal & contract risk vertical. Public `main` branch, source-only repo (&lt;10 MB without `node_modules`).
 
-LexGuard targets anyone signing employment, freelance, NDA, SaaS, vendor, or rental contracts — especially where they are the weaker party (e.g. employee, freelancer, customer). The assistant adapts its analysis to **document type** and **signing party**, not generic chat.
+---
 
-### Approach and logic
-
-| Principle | Implementation |
-|-----------|----------------|
-| **Context-first** | Gemini classifies document type + signing party before analysis |
-| **Structured reasoning** | Schema-driven clause extraction (10 contract types), then per-clause AI |
-| **Grounded answers** | RAG over market benchmark clauses (`corpus/`) + Vertex embeddings |
-| **Transparent risk** | Severity, deviation vs benchmarks, plain-language implications, redline suggestions |
-| **Dynamic assistant** | In-report chat uses session clauses + optional focused clause category |
-
-**Decision flow:**
-
-1. Ingest contract (file, paste, or URL).
-2. Classify → pick extraction schema (employment, NDA, etc.).
-3. Extract clauses → flag missing high-risk sections.
-4. For each clause: retrieve benchmarks → single Gemini JSON (classify, explain, compare, negotiate).
-5. Optional cross-clause pass for contradictions and ambiguity.
-6. Aggregate weighted risk score → interactive report workspace.
-
-### How the solution works
+## How it works
 
 ```mermaid
 flowchart LR
-  A[Upload contract] --> B[Classify type + party]
-  B --> C[Extract clauses by schema]
-  C --> D[RAG benchmarks]
-  D --> E[Gemini per-clause analysis]
+  A[Upload] --> B[Classify]
+  B --> C[Hybrid extract]
+  C --> D[Benchmark RAG]
+  D --> E[Gemini per clause]
   E --> F[Report + chat]
 ```
 
-**User journey**
+1. **Ingest** — PDF, DOCX, text, URL, or image (OCR).
+2. **Classify** — document type + signing party (Vertex).
+3. **Extract** — schema heuristics; optional **one** LLM call if coverage is low.
+4. **Analyze** — per clause: severity, implications, corpus comparison, adversarial verdict, redline.
+5. **Cross-clause** — contradictions & ambiguous language (heuristics always on).
+6. **Report** — risk score, radar, Q&A, PDF export.
 
-1. Open the app → upload `demo/sample_employment_contract.txt`, paste text, or add a PDF/URL.
-2. Watch live progress (SSE) while Vertex AI analyzes each clause.
-3. Open the **report workspace**: highlighted document, clause list, severity badges, risk radar, redlines, Q&A chat.
-4. Export a PDF summary or connect Google account for Docs/Slides.
+**Typical Vertex usage:** ~9–11 Gemini calls per contract; **0 embedding calls** in production (`category-first` RAG).
 
-**Google services used**
+---
 
-| Service | Role |
-|---------|------|
-| **Vertex AI (Gemini 2.5)** | Classification, clause analysis, chat, image OCR |
-| **Vertex AI Embeddings** | `text-embedding-004` for RAG |
-| **Vertex Vector Search** | Optional managed similarity search |
-| **Document AI** | Optional OCR for complex PDFs |
-| **Cloud Firestore** | Session / report persistence |
-| **Cloud Storage** | Uploaded document storage |
-| **Google OAuth** | Docs & Slides export |
-
-### Assumptions
-
-- Users have or can create a **GCP project** with Vertex AI enabled (judges run locally with `.env` + service account, or use your deployed Cloud Run URL).
-- Analysis quality is highest for **English** contracts; Indian jurisdiction is referenced in prompts where relevant.
-- **Not a substitute for a licensed attorney** — outputs are decision support, not legal advice.
-- `LEXGUARD_DEMO_MODE=false` is required for real AI (demo mode is for offline UI testing only).
-- Rate limits: clause analysis is intentionally **sequential/throttled** (`GEMINI_CLAUSE_CONCURRENCY`) to stay within Vertex quotas.
-- OAuth export requires the judge to configure `GOOGLE_CLIENT_ID` / `SECRET`; PDF export works without OAuth.
-
-### Submission checklist
-
-| Rule | Status |
-|------|--------|
-| Public GitHub repository | Required at submit time |
-| Single branch (`main`) | Do not use extra long-lived branches |
-| Repository &lt; 10 MB | Commit **source only** — `node_modules/`, `dist/`, `.env`, keys are gitignored |
-| Complete code in repo | `src/`, `corpus/`, `demo/`, `scripts/`, `tests/` |
-| README (this file) | Vertical, approach, how it works, assumptions |
-
-**Before pushing:** run `npm install` locally only; never commit `node_modules` or `dist/`.
+## Quick start
 
 ```bash
-# Verify repo footprint (source only, typical: < 1 MB)
-git ls-files | xargs du -ch 2>/dev/null | tail -1
-npm test && npm run build
+git clone https://github.com/chxmq/lexguard.git
+cd lexguard
+npm install
+cp .env.example .env
+# Edit: GOOGLE_CLOUD_PROJECT, GOOGLE_APPLICATION_CREDENTIALS, VERTEX_AI_LOCATION
+
+npm run setup-gcp      # once — GCP Owner account
+npm run check-vertex   # verify Vertex access
+npm test
+npm run eval:extract   # benchmark demos (no Vertex quota)
+npm run dev            # http://localhost:5173
 ```
 
----
+**Try these demos:**
 
-## Evaluation alignment
-
-| Criterion | How LexGuard addresses it |
-|-----------|---------------------------|
-| **Code quality** | `src/client` + `src/server` + `src/shared`; kebab-case modules; no legacy dead agents |
-| **Security** | Secrets gitignored; least-privilege SA; no keys in Docker image on Cloud Run |
-| **Efficiency** | Combined Gemini call per clause; embedding cache via local index; rate-limit backoff |
-| **Testing** | `npm test` (unit tests) + `npm run smoke` / `check-vertex` + GitHub Actions CI |
-| **Accessibility** | Semantic HTML, contrast-focused dark UI, keyboard-friendly forms, readable typography |
-| **Google services** | Vertex AI, Firestore, GCS, Document AI, Vector Search, OAuth — see table above |
-| **Problem statement deliverables** | Working app, `docs/ARCHITECTURE.md`, `docs/METHODOLOGY.md`, demo scripts, UI disclaimer, expanded `corpus/` |
-
----
-
-## Table of contents
-
-- [Features](#features)
-- [Tech stack](#tech-stack)
-- [Architecture](#architecture)
-- [Repository layout](#repository-layout)
-- [Prerequisites](#prerequisites)
-- [Quick start](#quick-start)
-- [Configuration](#configuration)
-- [Development](#development)
-- [Analysis pipeline](#analysis-pipeline)
-- [API reference](#api-reference)
-- [Scripts](#scripts)
-- [Deployment](#deployment)
-- [Security](#security)
-- [Troubleshooting](#troubleshooting)
-- [Documentation for judges](#documentation-for-judges)
-- [License](#license)
+| File | What to look for |
+|------|------------------|
+| `demo/sample_employment_contract.txt` | Non-compete, IP grab, **30 vs 60 day notice** contradiction |
+| `demo/sample_saas_subscription.txt` | Auto-renewal, INR 1k liability cap, Singapore arbitration |
+| `demo/sample_privacy_policy.txt` | Excessive data collection, weak rights |
 
 ---
 
@@ -131,165 +84,53 @@ npm test && npm run build
 
 | Capability | Description |
 |------------|-------------|
-| **Multi-format ingestion** | PDF (text + scanned OCR fallback), DOCX, plain text, URL, images (Gemini / Document AI) |
-| **Document classification** | Gemini identifies contract type and signing party |
-| **Schema extraction** | Rule-based clause extraction for 10 document types |
-| **Clause analysis** | Severity, implications, benchmark comparison, negotiation guidance |
-| **Benchmark RAG** | 35+ benchmark clauses in `corpus/` + embeddings; optional Vertex Vector Search |
-| **Cross-clause review** | Heuristics always on; Vertex AI merge by default (`LEXGUARD_CROSS_CLAUSE_AI=false` to disable AI) |
-| **Live progress** | Server-Sent Events during analysis |
-| **Report workspace** | Document highlights, clause list, insights, risk radar, chat |
-| **Export** | PDF; Google Docs/Slides with OAuth |
+| Multi-format ingestion | PDF (+ scanned OCR), DOCX, text, URL, images |
+| Hybrid extraction | Heuristics + optional LLM segmenter (`LEXGUARD_LLM_EXTRACT=auto`) |
+| Grounded analysis | 35+ benchmark clauses in `corpus/` |
+| Cross-clause intelligence | Heuristics always; Vertex merge optional |
+| Report workspace | Highlights, clause list, risk radar, chat, export |
+| Rate-limit safe | Shared Vertex queue, category-first RAG — see [RATE_LIMITS](docs/RATE_LIMITS.md) |
 
 ---
 
-## Tech stack
-
-| Layer | Technology |
-|-------|------------|
-| Frontend | React 18, Vite 6, Tailwind CSS, React Router |
-| Backend | Node.js 20+, Express |
-| AI | Vertex AI — Gemini 2.5 Flash / Pro |
-| Data | Firestore, GCS |
-| Deploy | Docker, Cloud Run |
-
----
-
-## Architecture
-
-```mermaid
-flowchart TB
-  subgraph Client["Browser"]
-    Upload[Upload / Paste / URL]
-    Analyzing[SSE progress]
-    Report[Report workspace]
-  end
-
-  subgraph API["Express API"]
-    Ingest[Ingestion]
-    Pipeline[Analysis pipeline]
-    RAG[RAG retriever]
-  end
-
-  subgraph GCP["Google Cloud"]
-    Gemini[Vertex Gemini]
-    FS[(Firestore)]
-    GCS[(GCS)]
-  end
-
-  Upload --> Ingest --> Pipeline
-  Pipeline --> Gemini
-  Pipeline --> RAG
-  Pipeline --> FS
-  Jobs --> Analyzing
-  Pipeline --> Report
-```
-
----
-
-## Repository layout
+## Project structure
 
 ```
 lexguard/
-├── src/client/          # React UI
-├── src/server/          # Express API + modules
-├── src/shared/          # Shared utilities
-├── corpus/              # RAG benchmark texts (commit)
-├── demo/                # Sample contract for judges
-├── scripts/             # GCP setup, health checks
-├── tests/               # Unit tests (npm test)
-└── .github/workflows/   # CI
+├── src/client/          # React UI (Vite + Tailwind)
+├── src/server/          # Express API, analysis pipeline, RAG
+├── src/shared/          # Cross-clause heuristics, constants, clause utils
+├── corpus/              # Benchmark clause library (committed)
+├── demo/                # Sample contracts for judges
+├── eval/                # Expected findings for benchmarks
+├── docs/                # Architecture, methodology, judging guide
+├── scripts/             # GCP setup, deploy, eval, e2e
+└── tests/               # Unit tests (node:test)
 ```
-
-| Path | Commit? | Notes |
-|------|---------|-------|
-| `src/`, `corpus/`, `demo/`, `scripts/`, `tests/` | Yes | Application source |
-| `node_modules/`, `dist/`, `.env`, `*.json` keys | **No** | Generated or secret |
-| `corpus/.vector-index.json` | No | Run `npm run embed-corpus` after clone |
-
----
-
-## Prerequisites
-
-- Node.js ≥ 20, npm ≥ 9
-- Google Cloud project (Vertex AI, Firestore, Storage)
-- [Google Antigravity](https://antigravity.google/) or any editor — clone repo and use `.env`
-- Git + public GitHub repository
-
----
-
-## Quick start
-
-```bash
-npm install
-cp .env.example .env
-# Set GOOGLE_CLOUD_PROJECT, GOOGLE_APPLICATION_CREDENTIALS, VERTEX_AI_LOCATION
-
-npm run setup-gcp      # once (GCP Owner)
-npm run check-vertex   # verify Gemini + embeddings
-npm run embed-corpus   # local RAG index
-npm test               # unit tests
-npm run dev            # http://localhost:5173
-```
-
-Upload **`demo/sample_employment_contract.txt`** for a 2-minute end-to-end demo. Also try **`demo/sample_saas_subscription.txt`** and **`demo/sample_privacy_policy.txt`**.
-
-**Judge materials:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) · [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) · [`docs/PRESENTATION.md`](docs/PRESENTATION.md)
-
-| Service | URL |
-|---------|-----|
-| Web UI | http://localhost:5173 |
-| API health | http://localhost:3050/api/health |
 
 ---
 
 ## Configuration
 
-See [`.env.example`](.env.example). Minimum for judging:
+Copy [`.env.example`](.env.example). Minimum:
 
 ```env
-GOOGLE_CLOUD_PROJECT=your-project
+GOOGLE_CLOUD_PROJECT=your-project-id
 GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
 VERTEX_AI_LOCATION=asia-northeast1
 LEXGUARD_DEMO_MODE=false
 ```
 
----
+**Production / demo-friendly rate limits:**
 
-## Development
-
-```bash
-npm run dev          # Client + API
-npm run build        # Production UI → dist/
-npm run start        # Serve dist/ + API
-npm test             # Unit tests
-npm run smoke        # Vertex connectivity
+```env
+VERTEX_MAX_CONCURRENT=1
+VERTEX_MIN_INTERVAL_MS=3000
+LEXGUARD_RAG_MODE=category-first
+LEXGUARD_RUNTIME_EMBEDDINGS=local
+LEXGUARD_CROSS_CLAUSE_AI=false
+LEXGUARD_LLM_EXTRACT=auto
 ```
-
----
-
-## Analysis pipeline
-
-| Step | Module |
-|------|--------|
-| Ingest | `server/modules/ingestion/` |
-| Classify | `extraction/classify-document.js` |
-| Extract | `extraction/extract-clauses.js` |
-| Analyze | `analysis/clause-analyzer.js` |
-| Cross-clause | `analysis/cross-clause-analyzer.js` (optional) |
-| Score | `analysis/pipeline.js` |
-
----
-
-## API reference
-
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/api/health` | Service status |
-| `POST` | `/api/analyze` | Start analysis |
-| `GET` | `/api/analyze/:id/stream` | SSE progress |
-| `GET` | `/api/session/:id` | Report JSON |
-| `POST` | `/api/chat` | Contract Q&A |
 
 ---
 
@@ -297,32 +138,86 @@ npm run smoke        # Vertex connectivity
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Development servers |
+| `npm run dev` | Vite + API (ports 5173 / 3050) |
 | `npm test` | Unit tests |
-| `npm run build` | Production frontend |
-| `npm run check-vertex` | GCP / Vertex probe |
-| `npm run embed-corpus` | Build local vector index |
-| `npm run setup-gcp` | Enable APIs + IAM |
+| `npm run eval:extract` | Demo benchmark (no Vertex) |
+| `npm run eval` | Full pipeline benchmark |
+| `npm run build` | Production frontend → `dist/` |
+| `npm run start` | Serve `dist/` + API |
+| `npm run check-vertex` | Vertex connectivity probe |
+| `npm run embed-corpus` | Build local vector index (offline) |
+| `npm run e2e` | End-to-end analysis script |
+| `./scripts/deploy-cloud-run.sh` | Deploy to Cloud Run |
+| `./scripts/setup-gcp.sh` | Enable APIs + IAM |
 
 ---
 
-## Deployment
+## API
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/health` | Status, RAG mode, Vertex queue config |
+| `POST` | `/api/analyze` | Start analysis (JSON, file, or URL) |
+| `GET` | `/api/analyze/:id/stream` | SSE progress |
+| `GET` | `/api/analyze/:id/status` | Poll status |
+| `GET` | `/api/session/:id` | Report JSON |
+| `POST` | `/api/chat` | Contract Q&A |
+
+---
+
+## Deployment (Cloud Run)
 
 ```bash
-gcloud run deploy lexguard-api --source . --region asia-northeast1 \
-  --allow-unauthenticated \
-  --set-env-vars "GOOGLE_CLOUD_PROJECT=YOUR_ID,VERTEX_AI_LOCATION=asia-northeast1,LEXGUARD_DEMO_MODE=false,NODE_ENV=production"
+./scripts/deploy-cloud-run.sh
 ```
 
-Use the Cloud Run service account in production — do not bake `service-account.json` into the image.
+Uses your `.env` for `DOCUMENT_AI_PROCESSOR_ID`, bucket name, etc. Do **not** bake service account JSON into the image — Cloud Run uses IAM.
 
 ---
 
-## Security
+## Google Cloud services
 
-- Never commit `.env`, service account JSON, or OAuth secrets.
-- Contracts may contain PII — use a dedicated GCP project for demos.
-- Outputs are informational, not legal advice.
+| Service | Role |
+|---------|------|
+| Vertex AI (Gemini 2.5) | Classification, analysis, chat, OCR |
+| Vertex Embeddings | Corpus indexing (`embed-corpus` only) |
+| Firestore | Session persistence |
+| Cloud Storage | Uploaded files |
+| Document AI | Optional OCR |
+| Cloud Run | Production hosting |
+
+---
+
+## Quality & testing
+
+```bash
+npm run test:all    # unit + benchmarks + API integration (no Vertex quota)
+```
+
+| Layer | Command | Count |
+|-------|---------|-------|
+| Unit + a11y | `npm run test:unit` | 25+ assertions |
+| Demo benchmarks | `npm run eval:extract` | 3 contracts, 100% target |
+| API integration | `npm run test:integration` | Full analyze flow in demo mode |
+
+See **[docs/TESTING.md](docs/TESTING.md)** for the full strategy (what each suite proves for judges).
+
+**Code organization:** `src/server/app.js` (testable Express factory), `src/shared/analysis-constants.js`, `src/server/lib/logger.js`, `src/server/lib/demo-mode.js` for CI.
+
+---
+
+## Documentation
+
+| Doc | Purpose |
+|-----|---------|
+| [JUDGING.md](docs/JUDGING.md) | 3-minute judge walkthrough |
+| [EVALUATION.md](docs/EVALUATION.md) | Measurable benchmarks |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design |
+| [METHODOLOGY.md](docs/METHODOLOGY.md) | AI workflow & limitations |
+| [RATE_LIMITS.md](docs/RATE_LIMITS.md) | Avoid 429 errors |
+| [DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | Live presentation script |
+| [PRESENTATION.md](docs/PRESENTATION.md) | Slide outline |
+| [TESTING.md](docs/TESTING.md) | Automated test strategy (unit, integration, benchmarks) |
 
 ---
 
@@ -330,27 +225,21 @@ Use the Cloud Run service account in production — do not bake `service-account
 
 | Issue | Fix |
 |-------|-----|
-| `429` rate limits | See **[docs/RATE_LIMITS.md](docs/RATE_LIMITS.md)** — use `category-first` RAG + request GCP quota |
-| Blank report | Ensure `LEXGUARD_DEMO_MODE=false` and valid credentials |
-| Repo too large on GitHub | Remove `node_modules` / `dist` from git history if accidentally committed |
+| `429` rate limits | [docs/RATE_LIMITS.md](docs/RATE_LIMITS.md) |
+| Blank report | `LEXGUARD_DEMO_MODE=false`, valid GCP credentials |
+| Session not found after restart | Re-upload; Firestore may still have report at `/api/session/:id` |
+| Port in use | Change `PORT` in `.env` |
 
 ---
 
-## Documentation for judges
+## Security
 
-| Document | Purpose |
-|----------|---------|
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System design, modules, deployment |
-| [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | AI models, reasoning workflow, limitations |
-| [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) | 5-minute live demo script |
-| [`docs/PRESENTATION.md`](docs/PRESENTATION.md) | 10-slide presentation outline |
+- Never commit `.env`, service account keys, or OAuth secrets.
+- Use a dedicated GCP project for demos (contracts may contain PII).
+- Outputs are informational, not legal advice.
 
 ---
 
 ## License
 
-[MIT](LICENSE) — Hack2Skill submission, 2026.
-
----
-
-<p align="center"><strong>LexGuard</strong> — Understand what you sign, before you sign it.</p>
+[MIT](LICENSE) — 2026

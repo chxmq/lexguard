@@ -55,13 +55,14 @@ Normalized to 0–100 for the report header and radar chart.
 
 ## Clause extraction methodology
 
-Extraction is **schema-driven and deterministic**:
+**Hybrid extraction** (`LEXGUARD_LLM_EXTRACT=auto`):
 
-- Contracts split into sections (headings, ARTICLE/SECTION patterns).
-- Each schema category has heading/body keyword signals.
-- Best-matching section assigned per category; missing required categories flagged.
+1. **Heuristic pass** — schema-driven section matching (headings, keywords, structural hints). Fast, no API cost.
+2. **LLM supplement** — single Vertex call when coverage &lt;55% or 2+ high-risk categories missing. Returns categorized clause text merged with heuristics.
 
-**Why not LLM extraction for every clause?** Reliability and cost: segmentation errors compound in downstream analysis. LLM reasoning is reserved for interpretation, not boundary detection. Future enhancement: optional LLM assist for `generic` documents.
+This balances **cost** (~0–1 extra calls) with **recall** on non-standard formatting.
+
+**Why not LLM-only extraction?** Segmentation errors compound downstream; heuristics are deterministic and testable (`npm run eval:extract`).
 
 ## Evaluation & limitations
 

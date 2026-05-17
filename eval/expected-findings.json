@@ -1,0 +1,46 @@
+{
+  "employment": {
+    "file": "demo/sample_employment_contract.txt",
+    "documentType": "employment",
+    "requiredCategories": [
+      "non_compete",
+      "ip_assignment",
+      "termination",
+      "notice_period",
+      "dispute_resolution"
+    ],
+    "crossClause": {
+      "minContradictions": 1
+    },
+    "highRiskCategories": ["non_compete", "ip_assignment"],
+    "phraseHits": [
+      { "category": "non_compete", "pattern": "twenty-four \\(24\\) months", "label": "24-month non-compete" },
+      { "category": "ip_assignment", "pattern": "irrevocably assigns", "label": "irrevocable IP assignment" },
+      { "category": "dispute_resolution", "pattern": "binding arbitration", "label": "mandatory arbitration" }
+    ]
+  },
+  "saas_tos": {
+    "file": "demo/sample_saas_subscription.txt",
+    "documentType": "saas_tos",
+    "requiredCategories": [
+      "auto_renewal",
+      "limitation_liability",
+      "arbitration",
+      "data_ownership"
+    ],
+    "phraseHits": [
+      { "category": "auto_renewal", "pattern": "automatically renew", "label": "auto-renewal" },
+      { "category": "limitation_liability", "pattern": "INR 1,000", "label": "INR 1,000 liability cap" },
+      { "category": "arbitration", "pattern": "Singapore", "label": "offshore arbitration" }
+    ]
+  },
+  "privacy_policy": {
+    "file": "demo/sample_privacy_policy.txt",
+    "documentType": "privacy_policy",
+    "requiredCategories": ["data_collected", "third_party_sharing", "user_rights"],
+    "phraseHits": [
+      { "category": "data_collected", "pattern": "geolocation", "label": "precise geolocation collection" },
+      { "category": "third_party_sharing", "pattern": "data brokers", "label": "data broker sharing" }
+    ]
+  }
+}

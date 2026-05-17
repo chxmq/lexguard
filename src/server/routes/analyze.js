@@ -13,9 +13,14 @@ import {
   failJob,
   subscribe,
 } from '../lib/jobs.js';
+import { logger } from '../lib/logger.js';
+import { MAX_CONTRACT_CHARS, MAX_UPLOAD_BYTES } from '../../shared/analysis-constants.js';
 
 const router = Router();
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_UPLOAD_BYTES },
+});
 
 function safeJson(data) {
   try {
@@ -66,12 +71,20 @@ async function handleAnalyze(req, res) {
       return res.status(400).json({ error: 'No document text provided' });
     }
 
+    if (rawText.length > MAX_CONTRACT_CHARS) {
+      return res.status(400).json({
+        error: `Document exceeds ${MAX_CONTRACT_CHARS.toLocaleString()} character limit`,
+      });
+    }
+
     createJob(sessionId);
-    startJob(sessionId, rawText).catch(console.error);
+    startJob(sessionId, rawText).catch((err) => {
+      logger.error('Analyze', 'Background job failed', err.message);
+    });
 
     res.json({ sessionId });
   } catch (err) {
-    console.error('Analyze error:', err);
+    logger.error('Analyze', 'Request failed', err.message);
     res.status(500).json({ error: err.message });
   }
 }
@@ -162,13 +175,13 @@ router.get('/analyze/:sessionId/stream', async (req, res) => {
           res.end();
         }
       } catch (err) {
-        console.error('SSE send error:', err);
+        logger.error('SSE', 'Send failed', err.message);
       }
     });
 
     req.on('close', () => unsub());
   } catch (err) {
-    console.error('SSE stream error:', err);
+    logger.error('SSE', 'Stream failed', err.message);
     if (!res.headersSent) {
       res.status(500).json({ error: err.message });
     }

@@ -1,4 +1,9 @@
 import { loadSchema } from './schemas/index.js';
+import {
+  extractClausesWithLlm,
+  shouldUseLlmExtraction,
+} from './extract-clauses-llm.js';
+import { logger } from '../../lib/logger.js';
 
 function normalizeText(text) {
   return text.replace(/\r\n/g, '\n');
@@ -127,26 +132,27 @@ function extractWindow(text, centerIndex, windowSize) {
   return text.slice(start, end).trim();
 }
 
-export async function extractClauses(rawText, documentType) {
-  const schema = loadSchema(documentType);
-  const extracted = [];
+function mergeExtractions(heuristic, llm) {
+  const byCategory = new Map();
+  for (const c of heuristic) {
+    byCategory.set(c.category, { ...c, extractionMethod: 'heuristic' });
+  }
+  for (const c of llm) {
+    const existing = byCategory.get(c.category);
+    if (!existing || (c.text?.length || 0) > (existing.text?.length || 0)) {
+      byCategory.set(c.category, c);
+    }
+  }
+  return [...byCategory.values()];
+}
+
+function buildMissing(schema, extracted) {
+  const found = new Set(extracted.map((c) => c.category));
   const missing = [];
-
   for (const category of schema.requiredCategories) {
+    if (found.has(category)) continue;
     const signals = schema.extractionSignals[category];
-    if (!signals) continue;
-
-    const clause = findClause(rawText, signals);
-
-    if (clause) {
-      extracted.push({
-        text: clause.text,
-        category,
-        startIndex: clause.startIndex,
-        endIndex: clause.endIndex,
-        confidence: clause.confidence,
-      });
-    } else if (schema.riskCategories.includes(category)) {
+    if (schema.riskCategories.includes(category) && signals) {
       missing.push({
         category,
         riskMessage: signals.missingRisk,
@@ -154,6 +160,46 @@ export async function extractClauses(rawText, documentType) {
       });
     }
   }
+  return missing;
+}
 
-  return { extracted, missing };
+export async function extractClauses(rawText, documentType, options = {}) {
+  const schema = loadSchema(documentType);
+  const heuristic = [];
+
+  for (const category of schema.requiredCategories) {
+    const signals = schema.extractionSignals[category];
+    if (!signals) continue;
+
+    const clause = findClause(rawText, signals);
+    if (clause) {
+      heuristic.push({
+        text: clause.text,
+        category,
+        startIndex: clause.startIndex,
+        endIndex: clause.endIndex,
+        confidence: clause.confidence,
+        extractionMethod: 'heuristic',
+      });
+    }
+  }
+
+  let missing = buildMissing(schema, heuristic);
+  let extracted = heuristic;
+
+  if (shouldUseLlmExtraction(heuristic, missing, documentType)) {
+    try {
+      options.onProgress?.({
+        stage: 'extracting',
+        message: 'Semantic clause extraction (Vertex AI)...',
+      });
+      const llmClauses = await extractClausesWithLlm(rawText, documentType, options);
+      extracted = mergeExtractions(heuristic, llmClauses);
+      missing = buildMissing(schema, extracted);
+    } catch (err) {
+      logger.warn('Extract', 'LLM supplement failed', err.message);
+    }
+  }
+
+  return { extracted, missing, extractionMeta: { heuristic: heuristic.length, final: extracted.length } };
 }

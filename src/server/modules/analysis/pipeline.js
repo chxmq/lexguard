@@ -4,16 +4,12 @@ import { extractClauses } from '../extraction/extract-clauses.js';
 import { analyzeClause } from './clause-analyzer.js';
 import { analyzeCrossClause } from './cross-clause-analyzer.js';
 import { saveSession } from '../../lib/storage.js';
-
-const SEVERITY_WEIGHTS = {
-  Critical: 5,
-  High: 4,
-  Medium: 3,
-  Low: 2,
-  Informational: 1,
-};
-
-const SEVERITY_ORDER = ['Critical', 'High', 'Medium', 'Low', 'Informational'];
+import {
+  SEVERITY_ORDER,
+  SEVERITY_WEIGHTS,
+  MAX_CONTRACT_CHARS,
+} from '../../../shared/analysis-constants.js';
+import { logger } from '../../lib/logger.js';
 const CLAUSE_CONCURRENCY = 1;
 const CLAUSE_GAP_MS = Math.max(0, Number(process.env.GEMINI_CLAUSE_GAP_MS) || 0);
 
@@ -69,7 +65,7 @@ export async function runAnalysis({ sessionId, rawText, onProgress }) {
     classification,
   });
 
-  const { extracted, missing } = await extractClauses(rawText, documentType);
+  const { extracted, missing } = await extractClauses(rawText, documentType, { onThrottle });
 
   onProgress?.({
     stage: 'extracted',
@@ -121,7 +117,7 @@ export async function runAnalysis({ sessionId, rawText, onProgress }) {
   try {
     ambiguityAnalysis = await analyzeCrossClause(extracted, documentType, signingParty);
   } catch (err) {
-    console.warn('[Pipeline] Ambiguity detection failed:', err.message);
+    logger.warn('Pipeline', 'Ambiguity detection failed', err.message);
   }
 
   const sorted = sortBySeverity(clauseResults);
@@ -137,7 +133,7 @@ export async function runAnalysis({ sessionId, rawText, onProgress }) {
     clauses: sorted,
     ambiguityAnalysis,
     overallRiskScore,
-    rawText: rawText.slice(0, 120000),
+    rawText: rawText.slice(0, MAX_CONTRACT_CHARS),
     rawTextPreview: rawText.slice(0, 500),
     completedAt: new Date().toISOString(),
   };

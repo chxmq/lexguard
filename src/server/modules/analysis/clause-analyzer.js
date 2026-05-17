@@ -1,4 +1,6 @@
-import { generateJSON, truncateForPrompt } from '../../lib/gemini.js';
+import { generateJSON, isDemoMode, truncateForPrompt } from '../../lib/gemini.js';
+import { demoAnalyzeClause } from '../../lib/demo-mode.js';
+import { logger } from '../../lib/logger.js';
 import { retrieveBenchmarks } from '../rag/retriever.js';
 import { synthesizeNegotiation } from './negotiation-synthesizer.js';
 
@@ -58,6 +60,10 @@ Clause:
 {{CLAUSE_TEXT}}`;
 
 export async function analyzeClause(clause, documentType, signingParty, options = {}) {
+  if (isDemoMode()) {
+    return demoAnalyzeClause(clause, documentType, signingParty);
+  }
+
   const benchmarks = await retrieveBenchmarks(clause.text, documentType, clause.category);
   const benchmarkText = benchmarks
     .map((b, i) => `[${i + 1}] ${truncateForPrompt(b.text, 400)}`)
@@ -86,7 +92,7 @@ export async function analyzeClause(clause, documentType, signingParty, options 
       };
     }
   } catch (err) {
-    console.warn(`[ClauseAnalysis] Combined call failed for ${clause.category}:`, err.message);
+    logger.warn('ClauseAnalysis', `Combined call failed for ${clause.category}`, err.message);
   }
 
   return runClauseAnalysisTwoStep(clause, documentType, signingParty, benchmarkText, options);

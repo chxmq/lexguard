@@ -1,8 +1,13 @@
 {
   "name": "lexguard",
   "version": "1.0.0",
+  "description": "AI contract intelligence — clause extraction, risk scoring, and explainable legal insights on Google Cloud",
   "private": true,
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chxmq/lexguard.git"
+  },
   "engines": {
     "node": ">=20"
   },
@@ -19,7 +24,13 @@
     "setup-gcp": "bash scripts/setup-gcp.sh",
     "smoke": "node scripts/smoke-test.js",
     "e2e": "node scripts/e2e-analyze.js",
-    "test": "node --test tests/*.test.js"
+    "eval:extract": "node scripts/eval-benchmarks.js --extract-only",
+    "eval": "node scripts/eval-benchmarks.js",
+    "test": "npm run test:all",
+    "test:unit": "node --test tests/*.test.js",
+    "test:integration": "LEXGUARD_DEMO_MODE=true node --test tests/integration/*.test.js",
+    "test:all": "npm run test:unit && npm run eval:extract && npm run test:integration",
+    "test:coverage": "node --test --experimental-test-coverage tests/*.test.js"
   },
   "dependencies": {
     "@google-cloud/aiplatform": "^6.8.0",

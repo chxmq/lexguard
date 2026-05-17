@@ -30,6 +30,10 @@ const FEATURES = [
   },
 ];
 
+const LIVE_URL =
+  import.meta.env.VITE_PUBLIC_APP_URL ||
+  'https://lexguard-api-319474876307.asia-northeast1.run.app';
+
 const SUPPORTED_TYPES = [
   'Employment Contracts',
   'Freelance Agreements',
@@ -90,9 +94,19 @@ export default function Upload() {
       {/* Hero */}
       <section className="relative mx-auto max-w-5xl px-6 pt-20 pb-16">
         <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono text-accent bg-accent/5 border border-accent/15 mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            Powered by Vertex AI Gemini 2.5 + RAG benchmarks
+          <div className="flex flex-col items-center gap-2 mb-8">
+            <a
+              href={LIVE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono text-accent-bright bg-accent/10 border border-accent/25 hover:bg-accent/15 transition-colors"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+              Live on Google Cloud Run
+            </a>
+            <span className="text-[10px] font-mono text-ink-faint">
+              Hybrid extraction · 35+ benchmarks · npm run eval:extract
+            </span>
           </div>
           <h2 className="font-display text-5xl sm:text-6xl font-bold tracking-tight text-ink leading-tight text-balance">
             Don't sign what you{' '}

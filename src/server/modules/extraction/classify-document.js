@@ -1,4 +1,5 @@
 import { generateJSON, isDemoMode, truncateForPrompt } from '../../lib/gemini.js';
+import { demoClassifyDocument } from '../../lib/demo-mode.js';
 
 const CLASSIFIER_PROMPT = `You are a legal document classifier. Given the first 2000 characters of a legal document, identify its type.
 
@@ -20,6 +21,10 @@ Document excerpt:
 {{DOCUMENT_EXCERPT}}`;
 
 export async function classifyDocument(rawText, options = {}) {
+  if (isDemoMode()) {
+    return demoClassifyDocument(rawText);
+  }
+
   const excerpt = truncateForPrompt(rawText.slice(0, 2000), 2000);
   const prompt = CLASSIFIER_PROMPT.replace('{{DOCUMENT_EXCERPT}}', excerpt);
 

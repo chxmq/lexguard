@@ -7,7 +7,7 @@ on:
     branches: [main, master]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,17 +21,29 @@ jobs:
         run: npm ci
 
       - name: Unit tests
-        run: npm test
+        run: npm run test:unit
+
+      - name: Demo benchmarks (no Vertex)
+        run: npm run eval:extract
+
+      - name: API integration tests (demo mode)
+        env:
+          LEXGUARD_DEMO_MODE: 'true'
+          LEXGUARD_MEMORY_STORE: 'true'
+          LEXGUARD_LLM_EXTRACT: 'false'
+        run: npm run test:integration
 
       - name: Build frontend
         run: npm run build
 
-      - name: Verify production server starts
+      - name: Production server smoke
         env:
           NODE_ENV: production
           LEXGUARD_DEMO_MODE: 'true'
+          LEXGUARD_MEMORY_STORE: 'true'
           PORT: '8080'
         run: |
-          timeout 8 node src/server/index.js &
+          timeout 12 node src/server/index.js &
           sleep 2
           curl -sf http://127.0.0.1:8080/api/health | grep -q '"status":"ok"'
+          curl -sf http://127.0.0.1:8080/api/health | grep -q '"demoMode":true'

@@ -1,4 +1,5 @@
 import { getSession, saveSession } from './storage.js';
+import { logger } from './logger.js';
 
 const jobs = new Map();
 
@@ -21,7 +22,7 @@ async function persistJob(sessionId, job) {
       jobError: job.error?.message ?? null,
     });
   } catch (err) {
-    console.warn('[JobStore] Failed to persist job:', err.message);
+    logger.warn('JobStore', 'Failed to persist job', err.message);
   }
 }
 

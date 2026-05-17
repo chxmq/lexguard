@@ -23,6 +23,9 @@ out/
 .turbo/
 storybook-static/
 
+# Local gcloud scratch (do not commit)
+.gcloud-config/
+
 # --- Environment & secrets (never commit) ----------------------------------------
 .env
 .env.*
