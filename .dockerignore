@@ -1,0 +1,11 @@
+node_modules
+dist
+.env
+.env.*
+service-account.json
+.git
+.github
+*.log
+corpus/.vector-index.json
+.cursor
+scripts/check-vertex-quota.sh

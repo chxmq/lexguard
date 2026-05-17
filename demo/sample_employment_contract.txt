@@ -1,0 +1,51 @@
+EMPLOYMENT AGREEMENT
+
+This Employment Agreement ("Agreement") is entered into as of January 15, 2025, between TechVentures India Private Limited, a company incorporated under the laws of India with its registered office in Bengaluru, Karnataka ("Company"), and the individual named in the signature block below ("Employee").
+
+1. COMPENSATION
+
+The Company shall pay the Employee a gross annual compensation of INR 18,00,000 (Rupees Eighteen Lakhs), payable in monthly installments in accordance with Company payroll practices. The Employee shall be eligible for an annual performance bonus at the sole discretion of the Company, targeted at up to 15% of base salary. Benefits include health insurance as per Company policy.
+
+2. TERM AND TERMINATION
+
+Employment shall commence on February 1, 2025 and continue until terminated by either party. The Company may terminate this Agreement immediately for Cause, including material breach, misconduct, or violation of Company policies. The Company may terminate without Cause upon thirty (30) days written notice. The Employee may resign upon thirty (30) days written notice.
+
+3. NOTICE PERIOD
+
+Upon resignation, the Employee shall serve a notice period of sixty (60) days unless waived in writing by the Company. During the notice period, the Employee shall continue all duties and remain subject to all obligations herein.
+
+4. NON-COMPETE AND NON-SOLICITATION
+
+During employment and for a period of twenty-four (24) months following termination for any reason, the Employee agrees not to, directly or indirectly:
+
+(a) Engage in, own, manage, or participate in any competitive business that develops, markets, or sells software products substantially similar to those of the Company, anywhere in India or any market in which the Company operates;
+
+(b) Solicit or attempt to solicit any employee, contractor, or customer of the Company;
+
+(c) Accept employment with any entity that the Company reasonably determines to be a competitor.
+
+The Employee acknowledges that this restriction is reasonable and necessary to protect the Company's legitimate business interests, confidential information, and customer relationships.
+
+5. INTELLECTUAL PROPERTY ASSIGNMENT
+
+The Employee hereby irrevocably assigns to the Company all right, title, and interest in and to any and all inventions, works of authorship, designs, software, code, documentation, trade secrets, and other intellectual property conceived, developed, or reduced to practice during employment, whether or not during working hours, and whether or not using Company resources. This includes all inventions for twelve (12) months after termination that relate to the Company's business or result from work performed for the Company.
+
+6. CONFIDENTIALITY
+
+The Employee shall not disclose or use any Confidential Information except as required for employment. Confidential Information includes all non-public business, technical, financial, and customer information. Obligations survive termination indefinitely.
+
+7. DISPUTE RESOLUTION
+
+Any dispute arising from this Agreement shall be resolved exclusively through binding arbitration in Bengaluru, Karnataka under the Arbitration and Conciliation Act, 1996. The Employee waives any right to participate in a class action. Each party shall bear its own costs unless the arbitrator orders otherwise.
+
+8. GOVERNING LAW
+
+This Agreement shall be governed by the laws of India. The courts of Bengaluru, Karnataka shall have exclusive jurisdiction for any matters not subject to arbitration.
+
+IN WITNESS WHEREOF, the parties have executed this Agreement.
+
+TECHVENTURES INDIA PRIVATE LIMITED
+By: _________________________
+
+EMPLOYEE
+Signature: _________________________

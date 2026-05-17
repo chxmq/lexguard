@@ -1,0 +1,52 @@
+{
+  "name": "lexguard",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "vite",
+    "dev:server": "node --watch src/server/index.js",
+    "build": "vite build",
+    "start": "NODE_ENV=production node src/server/index.js",
+    "preview": "vite preview",
+    "embed-corpus": "node scripts/embed-corpus.js",
+    "sync-vector-search": "node scripts/sync-vector-search.js",
+    "check-vertex": "node scripts/check-vertex-quota.js",
+    "setup-gcp": "bash scripts/setup-gcp.sh",
+    "smoke": "node scripts/smoke-test.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "@google-cloud/aiplatform": "^6.8.0",
+    "@google-cloud/documentai": "^8.12.0",
+    "@google-cloud/firestore": "^7.11.0",
+    "@google-cloud/storage": "^7.16.0",
+    "@google-cloud/vertexai": "^1.10.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "google-auth-library": "^10.6.2",
+    "googleapis": "^148.0.0",
+    "mammoth": "^1.9.0",
+    "multer": "^1.4.5-lts.2",
+    "p-limit": "^6.2.0",
+    "pdf-parse": "^1.1.1",
+    "pdfkit": "^0.18.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.6.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.4.1",
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^9.1.2",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.3.5"
+  }
+}

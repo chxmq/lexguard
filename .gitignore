@@ -1,0 +1,128 @@
+# =============================================================================
+# LexGuard — .gitignore
+# =============================================================================
+
+# --- Dependencies ----------------------------------------------------------------
+node_modules/
+jspm_packages/
+bower_components/
+.pnp
+.pnp.js
+
+# --- Build & bundler output ------------------------------------------------------
+dist/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+.vite/
+*.local
+.cache/
+.parcel-cache/
+.turbo/
+storybook-static/
+
+# --- Environment & secrets (never commit) ----------------------------------------
+.env
+.env.*
+!.env.example
+!.env*.example
+
+# Google Cloud / OAuth credentials
+service-account.json
+service-account*.json
+*-service-account.json
+*credentials*.json
+*.pem
+*.p12
+*.key
+!*.key.example
+gcloud/
+.google-cookies
+
+# --- Generated RAG index ---------------------------------------------------------
+corpus/.vector-index.json
+
+# --- Logs & diagnostics ----------------------------------------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.npm
+.eslintcache
+.stylelintcache
+.node_repl_history
+
+# --- Test & coverage -------------------------------------------------------------
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+test-results/
+playwright-report/
+playwright/.cache/
+cypress/videos/
+cypress/screenshots/
+
+# --- OS & editor -----------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDE — VS Code / Cursor (keep shared settings if you add .vscode/extensions.json)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# Cursor (local agent state)
+.cursor/
+
+# --- Runtime & temp --------------------------------------------------------------
+tmp/
+temp/
+*.tmp
+*.temp
+*.pid
+*.seed
+*.pid.lock
+uploads/
+.storage/
+
+# --- Firebase (local emulator / debug) -------------------------------------------
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# --- Docker (local overrides only) -----------------------------------------------
+docker-compose.override.yml
+.docker/
+
+# --- Misc ------------------------------------------------------------------------
+*.tsbuildinfo
+.vercel
+.netlify
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# --- Optional: uncomment if you generate these locally ---------------------------
+# package-lock.json
