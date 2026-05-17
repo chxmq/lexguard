@@ -102,6 +102,7 @@ npm test && npm run build
 | **Testing** | `npm test` (unit tests) + `npm run smoke` / `check-vertex` + GitHub Actions CI |
 | **Accessibility** | Semantic HTML, contrast-focused dark UI, keyboard-friendly forms, readable typography |
 | **Google services** | Vertex AI, Firestore, GCS, Document AI, Vector Search, OAuth — see table above |
+| **Problem statement deliverables** | Working app, `docs/ARCHITECTURE.md`, `docs/METHODOLOGY.md`, demo scripts, UI disclaimer, expanded `corpus/` |
 
 ---
 
@@ -121,6 +122,7 @@ npm test && npm run build
 - [Deployment](#deployment)
 - [Security](#security)
 - [Troubleshooting](#troubleshooting)
+- [Documentation for judges](#documentation-for-judges)
 - [License](#license)
 
 ---
@@ -129,12 +131,12 @@ npm test && npm run build
 
 | Capability | Description |
 |------------|-------------|
-| **Multi-format ingestion** | PDF, DOCX, plain text, URL (bot-block fallback), images (Gemini vision OCR) |
+| **Multi-format ingestion** | PDF (text + scanned OCR fallback), DOCX, plain text, URL, images (Gemini / Document AI) |
 | **Document classification** | Gemini identifies contract type and signing party |
 | **Schema extraction** | Rule-based clause extraction for 10 document types |
 | **Clause analysis** | Severity, implications, benchmark comparison, negotiation guidance |
-| **Benchmark RAG** | Local corpus + embeddings; optional Vertex Vector Search |
-| **Cross-clause review** | Optional AI panel (`LEXGUARD_CROSS_CLAUSE_AI=true`) |
+| **Benchmark RAG** | 35+ benchmark clauses in `corpus/` + embeddings; optional Vertex Vector Search |
+| **Cross-clause review** | Heuristics always on; Vertex AI merge by default (`LEXGUARD_CROSS_CLAUSE_AI=false` to disable AI) |
 | **Live progress** | Server-Sent Events during analysis |
 | **Report workspace** | Document highlights, clause list, insights, risk radar, chat |
 | **Export** | PDF; Google Docs/Slides with OAuth |
@@ -230,7 +232,9 @@ npm test               # unit tests
 npm run dev            # http://localhost:5173
 ```
 
-Upload **`demo/sample_employment_contract.txt`** for a 2-minute end-to-end demo.
+Upload **`demo/sample_employment_contract.txt`** for a 2-minute end-to-end demo. Also try **`demo/sample_saas_subscription.txt`** and **`demo/sample_privacy_policy.txt`**.
+
+**Judge materials:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) · [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) · [`docs/PRESENTATION.md`](docs/PRESENTATION.md)
 
 | Service | URL |
 |---------|-----|
@@ -326,9 +330,20 @@ Use the Cloud Run service account in production — do not bake `service-account
 
 | Issue | Fix |
 |-------|-----|
-| `429` rate limits | Set `GEMINI_CLAUSE_CONCURRENCY=1` |
+| `429` rate limits | See **[docs/RATE_LIMITS.md](docs/RATE_LIMITS.md)** — use `category-first` RAG + request GCP quota |
 | Blank report | Ensure `LEXGUARD_DEMO_MODE=false` and valid credentials |
 | Repo too large on GitHub | Remove `node_modules` / `dist` from git history if accidentally committed |
+
+---
+
+## Documentation for judges
+
+| Document | Purpose |
+|----------|---------|
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System design, modules, deployment |
+| [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | AI models, reasoning workflow, limitations |
+| [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) | 5-minute live demo script |
+| [`docs/PRESENTATION.md`](docs/PRESENTATION.md) | 10-slide presentation outline |
 
 ---
 

@@ -8,6 +8,7 @@ import ExportBar from '../components/ExportBar.jsx';
 import ChatInterface from '../components/ChatInterface.jsx';
 import AmbiguityPanel from '../components/AmbiguityPanel.jsx';
 import RiskRadar from '../components/RiskRadar.jsx';
+import LegalDisclaimer from '../components/LegalDisclaimer.jsx';
 import { getClauseCategory, normalizeClauseItems } from '../../shared/clause-utils.js';
 
 function ReportSidebar({ report, sessionId, showOverview, onToggleOverview }) {
@@ -210,6 +211,7 @@ export default function Report() {
           <ClauseInsightPanel item={selectedItem} />
         </div>
       }
+      footer={<LegalDisclaimer variant="dark" />}
     />
   );
 }

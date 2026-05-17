@@ -29,6 +29,7 @@ app.use(express.json({ limit: '25mb' }));
 
 app.get('/api/health', async (_req, res) => {
   const { getVectorSearchStatus } = await import('./modules/rag/vertex-vector-search.js');
+  const { getVertexQueueStatus } = await import('./lib/vertex-queue.js');
   res.json({
     status: 'ok',
     demoMode: process.env.LEXGUARD_DEMO_MODE === 'true',
@@ -40,6 +41,14 @@ app.get('/api/health', async (_req, res) => {
     vectorSearch: getVectorSearchStatus(),
     documentAi: Boolean(process.env.DOCUMENT_AI_PROCESSOR_ID),
     imageOcr: process.env.LEXGUARD_IMAGE_OCR || 'gemini-vision',
+    pdfOcr: process.env.LEXGUARD_PDF_OCR || 'gemini-vision',
+    crossClauseAi: process.env.LEXGUARD_CROSS_CLAUSE_AI !== 'false',
+    ragMode: process.env.LEXGUARD_RAG_MODE || 'category-first',
+    runtimeEmbeddings: process.env.LEXGUARD_RUNTIME_EMBEDDINGS || 'vertex',
+    vertexQueue: getVertexQueueStatus(),
+    oauthConfigured: Boolean(
+      process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    ),
     urlReaderFallback: process.env.URL_READER_FALLBACK !== 'false',
   });
 });

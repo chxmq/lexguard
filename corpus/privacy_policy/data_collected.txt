@@ -1,0 +1,1 @@
+We collect account identifiers, usage logs, and payment metadata necessary to provide the service. We do not collect sensitive categories (health, biometrics) without explicit consent and a stated purpose.

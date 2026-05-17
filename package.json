@@ -18,6 +18,7 @@
     "check-vertex": "node scripts/check-vertex-quota.js",
     "setup-gcp": "bash scripts/setup-gcp.sh",
     "smoke": "node scripts/smoke-test.js",
+    "e2e": "node scripts/e2e-analyze.js",
     "test": "node --test tests/*.test.js"
   },
   "dependencies": {

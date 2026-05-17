@@ -5,9 +5,14 @@ export default function ExportBar({ sessionId, compact = false }) {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(null);
   const [googleConnected, setGoogleConnected] = useState(false);
+  const [oauthConfigured, setOauthConfigured] = useState(false);
 
   useEffect(() => {
     setGoogleConnected(hasGoogleTokens());
+    fetch('/api/health')
+      .then((r) => r.json())
+      .then((h) => setOauthConfigured(Boolean(h.oauthConfigured)))
+      .catch(() => setOauthConfigured(false));
 
     function onMessage(e) {
       if (e.data?.type === 'lexguard-oauth-done') {
@@ -89,7 +94,7 @@ export default function ExportBar({ sessionId, compact = false }) {
 
   return (
     <div>
-      {FORMATS.some((f) => f.needsGoogle) && (
+      {oauthConfigured && FORMATS.some((f) => f.needsGoogle) && (
         <div className={`mb-3 ${compact ? 'space-y-2' : 'flex flex-wrap items-center gap-2'}`}>
           {googleConnected ? (
             <button

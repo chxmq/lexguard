@@ -1,0 +1,31 @@
+PRIVACY POLICY — MOBILE APP EXAMPLE
+
+Effective: March 1, 2025
+
+1. INFORMATION WE COLLECT
+
+We collect your name, email, phone number, precise geolocation (always on), device identifiers, contacts, photos, microphone audio, and browsing history across other apps where permitted by your device settings. We may collect additional categories from time to time without further notice.
+
+2. HOW WE USE INFORMATION
+
+We use information for service delivery, analytics, advertising, profiling, and any other purpose we deem appropriate in our sole discretion, including developing AI models.
+
+3. SHARING
+
+We share information with affiliates, advertisers, data brokers, and any third party we select without restriction. We do not provide a list of subprocessors.
+
+4. RETENTION
+
+We retain data indefinitely unless we decide otherwise.
+
+5. YOUR RIGHTS
+
+You may contact support@example.com with requests. We are not obligated to respond within any particular timeframe and may deny requests at our discretion. No appeal process is described.
+
+6. SECURITY
+
+We use reasonable measures as determined by us. No encryption standard is specified.
+
+7. CONTACT
+
+privacy@example.com

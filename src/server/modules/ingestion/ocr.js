@@ -12,15 +12,38 @@ function isImageMime(mimetype) {
   return IMAGE_TYPES.has(mimetype) || /^image\//i.test(mimetype || '');
 }
 
+function isPdfMime(mimetype) {
+  return mimetype === 'application/pdf';
+}
+
+async function tryGeminiOcr(buffer, mimetype) {
+  const text = await geminiOcr(buffer, mimetype);
+  if (text?.trim()) {
+    return { text: text.trim(), structure: [], ocrEngine: 'gemini-vision' };
+  }
+  return null;
+}
+
 export async function runOcr(buffer, mimetype) {
-  if (isImageMime(mimetype) && process.env.LEXGUARD_IMAGE_OCR !== 'documentai') {
+  const preferDocumentAiForPdf = process.env.LEXGUARD_PDF_OCR === 'documentai';
+  const preferDocumentAiForImage = process.env.LEXGUARD_IMAGE_OCR === 'documentai';
+
+  if (isImageMime(mimetype) && !preferDocumentAiForImage) {
     try {
-      const text = await geminiOcr(buffer, mimetype);
-      if (text?.trim()) {
-        return { text: text.trim(), structure: [], ocrEngine: 'gemini-vision' };
-      }
+      const result = await tryGeminiOcr(buffer, mimetype);
+      if (result) return result;
     } catch (err) {
       console.warn('[OCR] Gemini vision failed:', err.message);
+      if (!processorName) throw err;
+    }
+  }
+
+  if (isPdfMime(mimetype) && !preferDocumentAiForPdf) {
+    try {
+      const result = await tryGeminiOcr(buffer, 'application/pdf');
+      if (result) return result;
+    } catch (err) {
+      console.warn('[OCR] Gemini PDF OCR failed:', err.message);
       if (!processorName) throw err;
     }
   }
@@ -29,6 +52,11 @@ export async function runOcr(buffer, mimetype) {
     if (isImageMime(mimetype)) {
       throw new Error(
         'Image OCR failed. Set GOOGLE_CLOUD_PROJECT for Gemini vision, or DOCUMENT_AI_PROCESSOR_ID for Document AI.'
+      );
+    }
+    if (isPdfMime(mimetype)) {
+      throw new Error(
+        'PDF OCR failed. Configure GOOGLE_CLOUD_PROJECT (Gemini) or DOCUMENT_AI_PROCESSOR_ID for scanned PDFs.'
       );
     }
     return {

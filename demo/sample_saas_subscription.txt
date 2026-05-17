@@ -1,0 +1,31 @@
+CLOUD PLATFORM TERMS OF SERVICE
+
+Last updated: January 1, 2025
+
+1. ACCEPTANCE
+
+By creating an account or using the Service, you agree to these Terms. If you do not agree, do not use the Service.
+
+2. SUBSCRIPTION AND AUTO-RENEWAL
+
+Your subscription will automatically renew at the end of each billing period unless you cancel at least forty-eight (48) hours before renewal. We may change pricing at any time in our sole discretion with effect on the next renewal. No refund is provided for partial periods.
+
+3. LIMITATION OF LIABILITY
+
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, OUR TOTAL LIABILITY FOR ANY CLAIM ARISING OUT OF THESE TERMS SHALL NOT EXCEED INR 1,000. WE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOSS OF PROFITS OR DATA.
+
+4. BINDING ARBITRATION
+
+Any dispute shall be resolved exclusively by binding arbitration in Singapore under SIAC rules. You waive any right to a jury trial or to participate in a class action. You may not opt out of this section.
+
+5. DATA
+
+You grant us a perpetual, irrevocable, worldwide license to use, modify, and sublicense any content you upload to improve our products and train models. We may share aggregated or de-identified data with partners at our discretion.
+
+6. TERMINATION
+
+We may suspend or terminate your account at any time for any reason without notice. Upon termination, your access ends immediately and sections on liability, arbitration, and license survive indefinitely.
+
+7. MODIFICATIONS
+
+We may modify these Terms at any time by posting an updated version. Continued use after posting constitutes acceptance.

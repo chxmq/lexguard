@@ -1,6 +1,6 @@
 import { VertexAI } from '@google-cloud/vertexai';
-import pLimit from 'p-limit';
 import dotenv from 'dotenv';
+import { runVertexTask, extendVertexCooldown } from './vertex-queue.js';
 
 dotenv.config();
 
@@ -8,33 +8,10 @@ const PROJECT = process.env.GOOGLE_CLOUD_PROJECT;
 const LOCATION = process.env.VERTEX_AI_LOCATION || 'us-central1';
 const MODEL_PRO = process.env.GEMINI_MODEL || 'gemini-2.5-pro';
 const MODEL_FAST = process.env.GEMINI_FAST_MODEL || 'gemini-2.5-flash';
-const MAX_RETRIES = Number(process.env.GEMINI_MAX_RETRIES) || 8;
-const GEMINI_CONCURRENCY = Number(process.env.GEMINI_CONCURRENCY) || 2;
-const MIN_INTERVAL_FAST_MS =
-  Number(process.env.GEMINI_MIN_INTERVAL_MS_FLASH) ||
-  Number(process.env.GEMINI_MIN_INTERVAL_MS) ||
-  1200;
-const MIN_INTERVAL_PRO_MS =
-  Number(process.env.GEMINI_MIN_INTERVAL_MS_PRO) ||
-  Math.max(MIN_INTERVAL_FAST_MS, 3000);
+const MAX_RETRIES = Number(process.env.GEMINI_MAX_RETRIES) || 6;
 
 let vertexAI = null;
 const modelCache = new Map();
-const geminiQueue = pLimit(GEMINI_CONCURRENCY);
-const lastCallAt = { fast: 0, pro: 0 };
-let cooldownUntil = 0;
-
-function tierKey(tier) {
-  return tier === 'fast' ? 'fast' : 'pro';
-}
-
-function minIntervalForTier(tier) {
-  return tierKey(tier) === 'fast' ? MIN_INTERVAL_FAST_MS : MIN_INTERVAL_PRO_MS;
-}
-
-function extendCooldown(ms) {
-  cooldownUntil = Math.max(cooldownUntil, Date.now() + ms);
-}
 
 function normalizeError(err, fallback = 'Vertex AI request failed') {
   if (err instanceof Error && err.message) return err;
@@ -85,17 +62,6 @@ function isRetryableError(err) {
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function throttle(tier) {
-  const key = tierKey(tier);
-  const minGap = minIntervalForTier(tier);
-  const now = Date.now();
-  const earliest = Math.max(cooldownUntil, lastCallAt[key] + minGap);
-  if (now < earliest) {
-    await sleep(earliest - now);
-  }
-  lastCallAt[key] = Date.now();
 }
 
 function extractResponseText(result) {
@@ -193,9 +159,8 @@ async function callModel(request, tier) {
     throw new Error('Vertex AI is not configured. Set GOOGLE_CLOUD_PROJECT and credentials.');
   }
 
-  return geminiQueue(async () => {
+  return runVertexTask(async () => {
     try {
-      await throttle(tier);
       const result = await model.generateContent(request);
       const { text, meta } = extractResponseText(result);
 
@@ -226,7 +191,7 @@ async function generateWithRetry(request, tier, options = {}) {
         ? Math.min(45_000, 4000 * 2 ** attempt)
         : Math.min(15_000, 1500 * 2 ** attempt);
       if (isRateLimitError(lastError)) {
-        extendCooldown(delayMs);
+        extendVertexCooldown(delayMs);
         options.onThrottle?.({
           message: 'Vertex AI rate limit — waiting before retry',
           retryInMs: delayMs,
@@ -264,7 +229,7 @@ export async function generateJSON(prompt, options = {}) {
     },
   };
 
-  const parseRetries = Math.max(0, Number(process.env.GEMINI_JSON_PARSE_RETRIES) || 2);
+  const parseRetries = Math.max(0, Number(process.env.GEMINI_JSON_PARSE_RETRIES) || 1);
   let lastError = new Error('Failed to parse JSON from Vertex AI');
 
   for (let parseAttempt = 0; parseAttempt <= parseRetries; parseAttempt += 1) {
@@ -325,7 +290,7 @@ export function truncateForPrompt(text, max = 2400) {
   return `${text.slice(0, max)}\n[...truncated for analysis]`;
 }
 
-const OCR_PROMPT = `Extract all readable text from this document image. Preserve paragraph breaks.
+const OCR_PROMPT = `Extract all readable text from this document (image or PDF page). Preserve paragraph breaks and section headings.
 Return plain text only — no markdown, no commentary. If nothing is legible, return an empty string.`;
 
 /**

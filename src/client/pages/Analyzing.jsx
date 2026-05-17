@@ -89,8 +89,12 @@ export default function Analyzing() {
           setStage(`Vertex AI quota — retrying in ~${sec}s (analysis continues)`);
         }
         if (data.stage === 'analyzing') {
-          setStage(`Analyzing: ${data.category?.replace(/_/g, ' ')}...`);
-          setCurrentClause(data.category);
+          const label =
+            data.category === 'cross_clause'
+              ? 'Cross-clause ambiguity & contradiction checks'
+              : data.category?.replace(/_/g, ' ');
+          setStage(`Analyzing: ${label}...`);
+          setCurrentClause(data.category === 'cross_clause' ? null : data.category);
         }
         if (data.stage === 'clause_complete') {
           setCompletedClauses((prev) => [

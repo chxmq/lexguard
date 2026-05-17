@@ -14,30 +14,28 @@ const SEVERITY_WEIGHTS = {
 };
 
 const SEVERITY_ORDER = ['Critical', 'High', 'Medium', 'Low', 'Informational'];
-const CLAUSE_CONCURRENCY = Math.min(
-  2,
-  Math.max(1, Number(process.env.GEMINI_CLAUSE_CONCURRENCY) || 1)
-);
+const CLAUSE_CONCURRENCY = 1;
+const CLAUSE_GAP_MS = Math.max(0, Number(process.env.GEMINI_CLAUSE_GAP_MS) || 0);
 
 export function calculateOverallRisk(clauseResults, missingClauses = []) {
   if (!clauseResults.length && missingClauses.length) return 72;
 
   let weightedSum = 0;
-  let totalWeight = 0;
+  let count = 0;
 
   for (const r of clauseResults) {
     const sev = r.classifier?.severity || 'Medium';
     const w = SEVERITY_WEIGHTS[sev] || 3;
     weightedSum += w * (r.classifier?.confidence ?? 0.8);
-    totalWeight += w;
+    count += 1;
   }
 
   for (const m of missingClauses) {
     weightedSum += SEVERITY_WEIGHTS.High;
-    totalWeight += SEVERITY_WEIGHTS.High;
+    count += 1;
   }
 
-  const avg = totalWeight ? weightedSum / totalWeight : 3;
+  const avg = count ? weightedSum / count : 3;
   return Math.min(100, Math.round((avg / 5) * 100));
 }
 
@@ -94,6 +92,9 @@ export async function runAnalysis({ sessionId, rawText, onProgress }) {
         });
 
         const analysis = await analyzeClause(clause, documentType, signingParty, { onThrottle });
+        if (CLAUSE_GAP_MS > 0) {
+          await new Promise((r) => setTimeout(r, CLAUSE_GAP_MS));
+        }
         const result = { clause, ...analysis };
         completed += 1;
 

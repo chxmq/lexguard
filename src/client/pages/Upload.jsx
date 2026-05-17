@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UploadZone from '../components/UploadZone.jsx';
+import LegalDisclaimer from '../components/LegalDisclaimer.jsx';
 
 const FEATURES = [
   {
     title: 'Adversarial Analysis',
-    desc: 'Multi-agent system argues both sides of every clause before reaching a verdict',
+    desc: 'Structured debate (acceptable vs. dangerous arguments) before a negotiation verdict per clause',
   },
   {
     title: 'Legal Reasoning',
@@ -37,6 +38,8 @@ const SUPPORTED_TYPES = [
   'Privacy Policies',
   'Vendor Agreements',
   'Rental Agreements',
+  'Insurance Policies',
+  'Loan Agreements',
 ];
 
 export default function Upload() {
@@ -89,15 +92,15 @@ export default function Upload() {
         <div className="text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-mono text-accent bg-accent/5 border border-accent/15 mb-8">
             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            Powered by Gemini 2.5 Pro + Multi-Agent AI
+            Powered by Vertex AI Gemini 2.5 + RAG benchmarks
           </div>
           <h2 className="font-display text-5xl sm:text-6xl font-bold tracking-tight text-ink leading-tight text-balance">
             Don't sign what you{' '}
             <span className="gradient-text">don't understand</span>
           </h2>
           <p className="mt-6 mx-auto max-w-2xl text-lg text-ink-muted leading-relaxed">
-            LexGuard runs adversarial multi-agent analysis on your contracts — identifying hidden risks,
-            ambiguous language, and exploitative clauses before you agree to them.
+            LexGuard analyzes your contracts with grounded legal reasoning — identifying hidden risks,
+            cross-clause contradictions, and exploitative language before you agree to them.
           </p>
         </div>
 
@@ -176,6 +179,10 @@ export default function Upload() {
             ))}
           </div>
         </div>
+      </section>
+
+      <section className="mx-auto max-w-5xl px-6 pb-12">
+        <LegalDisclaimer />
       </section>
     </div>
   );
