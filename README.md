@@ -65,8 +65,7 @@ cp .env.example .env
 
 npm run setup-gcp      # once — GCP Owner account
 npm run check-vertex   # verify Vertex access
-npm test
-npm run eval:extract   # benchmark demos (no Vertex quota)
+npm run test:all       # unit + benchmarks + integration (no Vertex quota)
 npm run dev            # http://localhost:5173
 ```
 
@@ -139,13 +138,17 @@ LEXGUARD_LLM_EXTRACT=auto
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Vite + API (ports 5173 / 3050) |
-| `npm test` | Unit tests |
+| `npm test` | Same as `test:all` — unit + benchmarks + integration |
+| `npm run test:unit` | Unit tests only (`node:test`) |
+| `npm run test:integration` | API tests in demo mode (no Vertex) |
+| `npm run test:all` | Full CI-equivalent suite |
 | `npm run eval:extract` | Demo benchmark (no Vertex) |
-| `npm run eval` | Full pipeline benchmark |
+| `npm run eval` | Full pipeline benchmark (Vertex) |
 | `npm run build` | Production frontend → `dist/` |
 | `npm run start` | Serve `dist/` + API |
 | `npm run check-vertex` | Vertex connectivity probe |
 | `npm run embed-corpus` | Build local vector index (offline) |
+| `npm run smoke:ci` | Production server health smoke (CI) |
 | `npm run e2e` | End-to-end analysis script |
 | `./scripts/deploy-cloud-run.sh` | Deploy to Cloud Run |
 | `./scripts/setup-gcp.sh` | Enable APIs + IAM |
@@ -161,7 +164,8 @@ LEXGUARD_LLM_EXTRACT=auto
 | `GET` | `/api/analyze/:id/stream` | SSE progress |
 | `GET` | `/api/analyze/:id/status` | Poll status |
 | `GET` | `/api/session/:id` | Report JSON |
-| `POST` | `/api/chat` | Contract Q&A |
+| `POST` | `/api/chat` | Contract Q&A (requires Vertex; disabled in demo mode) |
+| `POST` | `/api/export` | Export report (PDF, Google Docs, or Slides) |
 
 ---
 
@@ -196,9 +200,10 @@ npm run test:all    # unit + benchmarks + API integration (no Vertex quota)
 
 | Layer | Command | Count |
 |-------|---------|-------|
-| Unit + a11y | `npm run test:unit` | 25+ assertions |
-| Demo benchmarks | `npm run eval:extract` | 3 contracts, 100% target |
-| API integration | `npm run test:integration` | Full analyze flow in demo mode |
+| Unit + a11y | `npm run test:unit` | 29 tests |
+| Demo benchmarks | `npm run eval:extract` | 3 contracts, 100% on bundled demos |
+| API integration | `npm run test:integration` | 6 tests (health, analyze, validation) |
+| CI smoke | `npm run smoke:ci` | Production `/api/health` after build |
 
 See **[docs/TESTING.md](docs/TESTING.md)** for the full strategy (what each suite proves for judges).
 

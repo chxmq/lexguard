@@ -66,7 +66,7 @@ On every push to `main`:
 3. `npm run eval:extract`
 4. `npm run test:integration`
 5. `npm run build`
-6. Production server smoke (`curl /api/health`)
+6. Production server smoke (`npm run smoke:ci` → `scripts/ci-smoke.js`)
 
 ## Manual / Vertex tests
 
